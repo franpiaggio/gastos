@@ -1,8 +1,16 @@
+FROM node:22-alpine AS build
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY tsconfig*.json ./
+COPY src ./src
+COPY test ./test
+COPY public ./public
+# Type errors or failing tests stop the deploy.
+RUN npm run check && npm run build
+
 FROM nginx:1.27-alpine
-
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY public/ /usr/share/nginx/html/
-
+COPY --from=build /app/dist/ /usr/share/nginx/html/
 EXPOSE 80
-
 HEALTHCHECK --interval=30s --timeout=3s CMD wget -qO- http://127.0.0.1/healthz || exit 1

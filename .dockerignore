@@ -1,5 +1,7 @@
 .git
 .DS_Store
+node_modules
+dist
+docs
 README.md
 LICENSE
-docs
